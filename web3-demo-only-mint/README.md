@@ -28,10 +28,9 @@ foundryup
 クローン直後に以下を実行して依存（ `lib/` ）を取得します：
 
 ```bash
-forge install
+forge install foundry-rs/forge-std@v1.10.0 --no-commit
+forge install OpenZeppelin/openzeppelin-contracts@v5.4.0 --no-commit
 ```
-
-> `foundry.toml` に定義された依存関係（`forge-std`, `openzeppelin-contracts`）が自動的に `lib/` にインストールされます。
 
 ### 3️⃣ 環境変数の設定
 
@@ -44,7 +43,8 @@ cp env.template .env
 `.env` ファイルを編集して、以下の値を設定：
 
 **必須の環境変数:**
-- `PRIVATE_KEY`: デプロイ用の秘密鍵（0xプレフィックスなし）
+- `PRIVATE_KEY`: デプロイ用の秘密鍵（0xプレフィックスなし）<br>
+→ Anvil アカウントを使う場合は、**5️⃣ のタイミング（Anvil起動時）** に表示される秘密鍵を設定してください。
 - `RPC_URL`: 接続先の RPC URL
 
 **オプションの環境変数:**
