@@ -31,6 +31,8 @@ foundryup
 forge install
 ```
 
+> `foundry.toml` に定義された依存関係（`forge-std`, `openzeppelin-contracts`）が自動的に `lib/` にインストールされます。
+
 ### 3️⃣ 環境変数の設定
 
 `.env` ファイルを作成して、必要な環境変数を設定します：
