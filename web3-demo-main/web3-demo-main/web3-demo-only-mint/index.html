@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Token Mint</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .info-section {
+            background: #f7f7f7;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #667eea;
+            display: inline-block;
+            width: 120px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .step-label {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .help-text {
+            font-size: 0.85em;
+            color: #777;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block;
+        }
+        
+        .small-text {
+            font-size: 0.9em;
+            color: #777;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .section-divider {
+            border-top: 2px dashed #e0e0e0;
+            margin: 25px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🪙 Demo Token</h1>
+        
+        <div class="info-section" id="infoSection" style="display: none;">
+            <div class="info-item">
+                <span class="info-label">ウォレット:</span>
+                <span id="accountAddress">未接続</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">残高:</span>
+                <span id="tokenBalance">0</span> DEMO
+            </div>
+            <div class="info-item">
+                <span class="info-label">コントラクト:</span>
+                <span id="contractAddress">未設定</span>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="contractAddressInput">
+                <span class="step-label">1</span>トークンコントラクトアドレス
+            </label>
+            <input type="text" id="contractAddressInput" placeholder="0x..." value="0x5FbDB2315678afecb367f032d93F642f64180aa3">
+            <div class="help-text">
+                デプロイしたDemoTokenコントラクトのアドレス（Anvilの場合は上記がデフォルト）
+            </div>
+        </div>
+        
+        <button id="connectButton">
+            <span class="step-label">2</span>ウォレットを接続
+        </button>
+        
+        <div style="display: none;" id="mintSection">
+            <div class="section-divider"></div>
+            
+            <div class="input-group">
+                <label for="mintAmount">
+                    <span class="step-label">3</span>ミント数量（DEMO）
+                </label>
+                <input type="number" id="mintAmount" placeholder="100" value="100">
+                <div class="help-text">
+                    ミントしたいトークンの数量を入力してください
+                </div>
+            </div>
+            
+            <button id="mintButton">トークンをミント</button>
+            <button id="refreshButton" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">残高を更新</button>
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="small-text">
+            ⚠️ HTTPサーバー経由で開く必要があります<br>
+            MetaMaskが必要です
+        </div>
+    </div>
+
+    <!-- Web3.jsを読み込む -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    
+    <script>
+        // ERC20 Token ABI (DemoTokenの完全なABI)
+        const TOKEN_ABI = [
+            {
+                "type": "function",
+                "name": "balanceOf",
+                "inputs": [
+                    {
+                        "name": "account",
+                        "type": "address",
+                        "internalType": "address"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ],
+                "stateMutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "decimals",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint8",
+                        "internalType": "uint8"
+                    }
+                ],
+                "stateMutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "mint",
+                "inputs": [
+                    {
+                        "name": "to",
+                        "type": "address",
+                        "internalType": "address"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ],
+                "outputs": [],
+                "stateMutability": "nonpayable"
+            },
+            {
+                "type": "function",
+                "name": "name",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "string",
+                        "internalType": "string"
+                    }
+                ],
+                "stateMutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "symbol",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "string",
+                        "internalType": "string"
+                    }
+                ],
+                "stateMutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "totalSupply",
+                "inputs": [],
+                "outputs": [
+                    {
+                        "name": "",
+                        "type": "uint256",
+                        "internalType": "uint256"
+                    }
+                ],
+                "stateMutability": "view"
+            }
+        ];
+
+        let web3;
+        let tokenContract;
+        let userAddress;
+
+        const connectButton = document.getElementById('connectButton');
+        const mintButton = document.getElementById('mintButton');
+        const refreshButton = document.getElementById('refreshButton');
+        const contractAddressInput = document.getElementById('contractAddressInput');
+        const mintAmountInput = document.getElementById('mintAmount');
+        const statusDiv = document.getElementById('status');
+        const infoSection = document.getElementById('infoSection');
+        const mintSection = document.getElementById('mintSection');
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            setTimeout(() => {
+                statusDiv.className = 'status';
+            }, 5000);
+        }
+
+        async function connectWallet() {
+            try {
+                // MetaMaskがインストールされているか確認
+                if (typeof window.ethereum === 'undefined') {
+                    showStatus('MetaMaskをインストールしてください', 'error');
+                    return;
+                }
+
+                // Web3インスタンスを作成
+                web3 = new Web3(window.ethereum);
+
+                // アカウント接続をリクエスト
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                userAddress = accounts[0];
+
+                // アドレスを短縮して表示
+                document.getElementById('accountAddress').textContent = 
+                    userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+
+                // コントラクトアドレスの検証
+                const contractAddress = contractAddressInput.value.trim();
+                if (!contractAddress || !web3.utils.isAddress(contractAddress)) {
+                    showStatus('有効なコントラクトアドレスを入力してください', 'error');
+                    return;
+                }
+
+                // コントラクトインスタンスを作成
+                tokenContract = new web3.eth.Contract(TOKEN_ABI, contractAddress);
+                
+                document.getElementById('contractAddress').textContent = 
+                    contractAddress.substring(0, 6) + '...' + contractAddress.substring(38);
+
+                // 残高を更新
+                await updateBalance();
+                
+                // UIを更新
+                infoSection.style.display = 'block';
+                mintSection.style.display = 'block';
+                connectButton.textContent = '✓ 接続済み';
+                connectButton.disabled = true;
+                contractAddressInput.disabled = true;
+
+                showStatus('ウォレットが接続されました！', 'success');
+            } catch (error) {
+                console.error(error);
+                showStatus('接続に失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        async function updateBalance() {
+            try {
+                // 残高を取得
+                const balance = await tokenContract.methods.balanceOf(userAddress).call();
+                const decimals = await tokenContract.methods.decimals().call();
+                
+                // 残高をフォーマット
+                const formattedBalance = Number(balance) / Math.pow(10, Number(decimals));
+                document.getElementById('tokenBalance').textContent = 
+                    formattedBalance.toLocaleString();
+            } catch (error) {
+                console.error(error);
+                showStatus('残高の取得に失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        async function mintTokens() {
+            try {
+                const amount = mintAmountInput.value;
+                if (!amount || amount <= 0) {
+                    showStatus('有効な数量を入力してください', 'error');
+                    return;
+                }
+
+                mintButton.disabled = true;
+                mintButton.textContent = 'ミント中...';
+                showStatus('トランザクションを送信中...', 'info');
+
+                // decimalsを取得
+                const decimals = await tokenContract.methods.decimals().call();
+                
+                // amountをWei単位に変換
+                const amountWei = BigInt(amount) * BigInt(10 ** Number(decimals));
+
+                // mint関数を呼び出し
+                const receipt = await tokenContract.methods
+                    .mint(userAddress, amountWei.toString())
+                    .send({ from: userAddress });
+
+                console.log('Transaction receipt:', receipt);
+                
+                // 残高を更新
+                await updateBalance();
+                showStatus(`🎉 ${amount} DEMOトークンをミントしました！`, 'success');
+                
+                mintButton.disabled = false;
+                mintButton.textContent = 'トークンをミント';
+            } catch (error) {
+                console.error(error);
+                let errorMessage = 'ミントに失敗しました';
+                if (error.message) {
+                    errorMessage += ': ' + error.message;
+                }
+                showStatus(errorMessage, 'error');
+                mintButton.disabled = false;
+                mintButton.textContent = 'トークンをミント';
+            }
+        }
+
+        // イベントリスナーを設定
+        connectButton.addEventListener('click', connectWallet);
+        mintButton.addEventListener('click', mintTokens);
+        refreshButton.addEventListener('click', updateBalance);
+
+        // MetaMaskのアカウント変更を監視
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    location.reload();
+                } else {
+                    location.reload();
+                }
+            });
+
+            window.ethereum.on('chainChanged', () => {
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>
