@@ -23,7 +23,15 @@ curl -L https://foundry.paradigm.xyz | bash
 foundryup
 ```
 
-### 2️⃣ 環境変数の設定
+### 2️⃣ Solidity ライブラリの取得
+
+クローン直後に以下を実行して依存（ `lib/` ）を取得します：
+
+```bash
+forge install
+```
+
+### 3️⃣ 環境変数の設定
 
 `.env` ファイルを作成して、必要な環境変数を設定します：
 
@@ -42,13 +50,13 @@ cp env.template .env
 
 詳細は `env.template` を参照してください。
 
-### 3️⃣ ビルド
+### 4️⃣ ビルド
 
 ```bash
 forge build
 ```
 
-### 4️⃣ ローカル環境でテスト
+### 5️⃣ ローカル環境でテスト
 
 #### 🧱 Anvil の起動（ローカルノード）
 
@@ -84,7 +92,7 @@ forge script script/DeployDemoToken.s.sol:DeployDemoToken \
 
 デプロイ後、コントラクトアドレスがコンソールに表示されます。このアドレスをメモしてください。
 
-### 5️⃣ フロントエンドの使用
+### 6️⃣ フロントエンドの使用
 
 #### ⚠️ 重要: ローカルサーバーで開く必要があります
 
